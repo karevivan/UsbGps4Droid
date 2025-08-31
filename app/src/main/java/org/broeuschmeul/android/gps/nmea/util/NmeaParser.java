@@ -2,24 +2,40 @@
  * Copyright (C) 2010, 2011, 2012 Herbert von Broeuschmeul
  * Copyright (C) 2010, 2011, 2012 BluetoothGPS4Droid Project
  * Copyright (C) 2011, 2012 UsbGPS4Droid Project
- * 
+ *
  * This file is part of UsbGPS4Droid.
  *
  * UsbGPS4Droid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * UsbGPS4Droid is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with UsbGPS4Droid. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package org.broeuschmeul.android.gps.nmea.util;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationManager;
+import android.location.LocationProvider;
+import android.location.provider.ProviderProperties;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.SystemClock;
+import android.text.TextUtils;
+import android.text.TextUtils.SimpleStringSplitter;
+
+import androidx.annotation.RequiresApi;
+
+import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -28,21 +44,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationManager;
-import android.location.LocationProvider;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.SystemClock;
-import android.text.TextUtils;
-import android.text.TextUtils.SimpleStringSplitter;
-import android.util.Log;
-
-import org.broeuschmeul.android.gps.usb.provider.BuildConfig;
-import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;;
+;
 
 /**
  * This class is used to parse NMEA sentences an generate the Android Locations when there is a new GPS FIX.
@@ -52,15 +54,13 @@ import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;;
  * @author Herbert von Broeuschmeul
  */
 public class NmeaParser {
+    public static final String SATELLITE_KEY = "satellites";
+    public static final String SYSTEM_TIME_FIX = "system_time_fix";
     /**
      * Tag used for log messages
      */
     private static final String LOG_TAG = NmeaParser.class.getSimpleName();
-
-    public static final String SATELLITE_KEY = "satellites";
-    public static final String SYSTEM_TIME_FIX = "system_time_fix";
-
-    private Context appContext;
+    private final Context appContext;
 
     private String fixTime = null;
     private long fixTimestamp;
@@ -91,6 +91,7 @@ public class NmeaParser {
         this.lm = lm;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.S)
     public void enableMockLocationProvider(String gpsName, boolean force) {
         try {
             LocationProvider prov;
@@ -106,20 +107,20 @@ public class NmeaParser {
                     prov = lm.getProvider(mockLocationProvider);
 
                     if (prov != null) {
-                        log("Mock provider: " +
-                                            prov.getName() +
-                                            " " +
-                                            prov.getPowerRequirement() +
-                                            " " + prov.getAccuracy() +
-                                            " " + lm.isProviderEnabled(mockLocationProvider)
-                        );
+                       /* log("Mock provider: " +
+                                prov.getName() +
+                                " " +
+                                prov.getPowerRequirement() +
+                                " " + prov.getAccuracy() +
+                                " " + lm.isProviderEnabled(mockLocationProvider)
+                        );*/
 
                         try {
                             lm.removeTestProvider(mockLocationProvider);
 
                         } catch (IllegalArgumentException e) {
-                            log("unable to remove current provider Mock provider: " +
-                                    mockLocationProvider);
+                           /* log("unable to remove current provider Mock provider: " +
+                                    mockLocationProvider);*/
                         }
                     }
 
@@ -134,35 +135,35 @@ public class NmeaParser {
                             true,
                             true,
                             true,
-                            Criteria.POWER_MEDIUM,
-                            Criteria.ACCURACY_FINE
+                            ProviderProperties.POWER_USAGE_MEDIUM,
+                            ProviderProperties.ACCURACY_FINE
                     );
 
                     if (force || (prov == null)) {
-                        log("enabling Mock provider: " + mockLocationProvider);
+                        // log("enabling Mock provider: " + mockLocationProvider);
                         lm.setTestProviderEnabled(mockLocationProvider, true);
                         mockGpsAutoEnabled = true;
                     }
 
                     mockGpsEnabled = true;
 
-                } else {
+                } /*else {
                     log("Mock provider already enabled: " + mockLocationProvider);
-                }
+                }*/
 
                 prov = lm.getProvider(mockLocationProvider);
 
-                if (prov != null) {
+                /*if (prov != null) {
                     log("Mock provider: " +
                             prov.getName() +
                             " " + prov.getPowerRequirement() +
                             " " + prov.getAccuracy() +
                             " " + lm.isProviderEnabled(mockLocationProvider)
                     );
-                }
+                }*/
             }
         } catch (SecurityException e) {
-            logError("Error while enabling Mock Locations Provider", e);
+            // logError("Error while enabling Mock Locations Provider", e);
             disableMockLocationProvider();
 
         }
@@ -174,49 +175,49 @@ public class NmeaParser {
             if (mockLocationProvider != null && !mockLocationProvider.equals("") && mockGpsEnabled) {
                 prov = lm.getProvider(mockLocationProvider);
 
-                if (prov != null) {
+              /*  if (prov != null) {
                     log("Mock provider: " + prov.getName() + " " + prov.getPowerRequirement() + " " + prov.getAccuracy() + " " + lm.isProviderEnabled(mockLocationProvider));
                 }
-
+*/
                 mockGpsEnabled = false;
 
                 if (mockGpsAutoEnabled) {
-                    log("disabling Mock provider: " + mockLocationProvider);
+                    //       log("disabling Mock provider: " + mockLocationProvider);
                     lm.setTestProviderEnabled(mockLocationProvider, false);
                 }
 
                 prov = lm.getProvider(mockLocationProvider);
 
-                if (prov != null) {
+                /*if (prov != null) {
                     log("Mock provider: " + prov.getName() + " " + prov.getPowerRequirement() + " " + prov.getAccuracy() + " " + lm.isProviderEnabled(mockLocationProvider));
-                }
+                }*/
 
                 lm.clearTestProviderEnabled(mockLocationProvider);
 
                 prov = lm.getProvider(mockLocationProvider);
 
-                if (prov != null) {
+                /*if (prov != null) {
                     log("Mock provider: " + prov.getName() + " " + prov.getPowerRequirement() + " " + prov.getAccuracy() + " " + lm.isProviderEnabled(mockLocationProvider));
-                }
+                }*/
 
                 lm.clearTestProviderStatus(mockLocationProvider);
                 lm.removeTestProvider(mockLocationProvider);
 
                 prov = lm.getProvider(mockLocationProvider);
 
-                if (prov != null) {
+                /*if (prov != null) {
                     log("Mock provider: " + prov.getName() + " " + prov.getPowerRequirement() + " " + prov.getAccuracy() + " " + lm.isProviderEnabled(mockLocationProvider));
                 }
 
-                log("removed mock GPS");
+                log("removed mock GPS");*/
 
-            } else {
+            } /*else {
                 log("Mock provider already disabled: " + mockLocationProvider);
 
-            }
+            }*/
 
         } catch (SecurityException e) {
-            logError("Error while enabling Mock Mocations Provider", e);
+            // logError("Error while enabling Mock Mocations Provider", e);
 
         } finally {
             mockLocationProvider = null;
@@ -247,6 +248,7 @@ public class NmeaParser {
 
     /**
      * Notifies a new location fix to the MockLocationProvider
+     *
      * @param fix the location
      * @throws SecurityException
      */
@@ -257,7 +259,7 @@ public class NmeaParser {
 
         if (fix != null) {
             ((USBGpsApplication) appContext).notifyNewLocation(fix);
-            log("New Fix: " + System.currentTimeMillis() + " " + fix);
+            //log("New Fix: " + System.currentTimeMillis() + " " + fix);
 
             if (lm != null && mockGpsEnabled) {
 
@@ -269,16 +271,16 @@ public class NmeaParser {
                     lm.setTestProviderLocation(mockLocationProvider, fix);
 
                 } catch (IllegalArgumentException e) {
-                    log("Tried to notify a fix that was incomplete");
-                    log("Accuracy = " + Float.toString(fix.getAccuracy()));
+                    /*log("Tried to notify a fix that was incomplete");
+                    log("Accuracy = " + Float.toString(fix.getAccuracy()));*/
 
                 }
-                log("New Fix notified to Location Manager: " + mockLocationProvider);
+                //log("New Fix notified to Location Manager: " + mockLocationProvider);
 
-            } else {
+            }/* else {
                 log("Fix could not be notified, no locationManager");
 
-            }
+            }*/
             this.fix = null;
         }
     }
@@ -288,16 +290,16 @@ public class NmeaParser {
         hasGGA = false;
         hasRMC = false;
         if (this.mockStatus != status) {
-            log("New mockStatus: " + System.currentTimeMillis() + " " + status);
+            //log("New mockStatus: " + System.currentTimeMillis() + " " + status);
 
             if (lm != null && mockGpsEnabled) {
                 lm.setTestProviderStatus(mockLocationProvider, status, extras, updateTime);
 
-                log("New mockStatus notified to Location Manager: " +
+                /*log("New mockStatus notified to Location Manager: " +
                         status +
                         " " +
                         mockLocationProvider
-                );
+                );*/
             }
             this.fix = null;
             this.mockStatus = status;
@@ -308,7 +310,7 @@ public class NmeaParser {
     public String parseNmeaSentence(String gpsSentence) throws SecurityException {
         String nmeaSentence = null;
 
-        log("data: " + System.currentTimeMillis() + " " + gpsSentence);
+        //log("data: " + System.currentTimeMillis() + " " + gpsSentence);
 
         // Check that status is in a readable format
         Pattern xx = Pattern.compile("\\$([^*$]*)(?:\\*([0-9A-F][0-9A-F]))?\r\n");
@@ -319,7 +321,7 @@ public class NmeaParser {
             nmeaSentence = m.group(0);
             String sentence = m.group(1);
             String checkSum = m.group(2);
-            log("data: " +
+            /*log("data: " +
                     System.currentTimeMillis() +
                     " " +
                     sentence +
@@ -327,7 +329,7 @@ public class NmeaParser {
                     checkSum +
                     " control: " +
                     String.format("%02X", computeChecksum(sentence))
-            );
+            );*/
 
             // If we don't have a valid checksum then we obviously don't have the correct sentence
             if (checkSum != null &&
@@ -343,8 +345,9 @@ public class NmeaParser {
                     command = command.substring(2);
 
                     switch (command) {
+                        /*
                         case "GGA": {
-                        /* $GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47
+                        *//* $GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47
 
                             Where:
                                  GGA          Global Positioning System Fix Data
@@ -368,7 +371,7 @@ public class NmeaParser {
                                  (empty field) time in seconds since last DGPS update
                                  (empty field) DGPS station ID number
                                  *47          the checksum data, always begins with *
-                         */
+                         *//*
 
                             // UTC time of fix HHmmss.S
                             String time = splitter.next();
@@ -385,7 +388,7 @@ public class NmeaParser {
                             // direction (E/W)
                             String lonDir = splitter.next();
 
-                        /* fix quality:
+                        *//* fix quality:
                             0= invalid
                             1 = GPS fix (SPS)
                             2 = DGPS fix
@@ -395,7 +398,7 @@ public class NmeaParser {
                             6 = estimated (dead reckoning) (2.3 feature)
                             7 = Manual input mode
                             8 = Simulation mode
-                         */
+                         *//*
                             String quality = splitter.next();
 
                             // Number of satellites being tracked
@@ -483,6 +486,153 @@ public class NmeaParser {
 
                             break;
                         }
+                        */
+
+                        case "GNS": {
+                        /*
+                        $GNGNS,111719.00,5553.30594,N,03726.19884,E,AAAA,20,0.69,185.3,13.4,,,V*19
+                        $GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47
+
+                            Where:
+                                 GGA          Global Positioning System Fix Data
+                                 123519       Fix taken at 12:35:19 UTC
+                                 4807.038,N   Latitude 48 deg 07.038' N
+                                 01131.000,E  Longitude 11 deg 31.000' E
+                                 1            Fix quality: 0 = invalid
+                                                           1 = GPS fix (SPS)
+                                                           2 = DGPS fix
+                                                           3 = PPS fix
+                                                           4 = Real Time Kinematic
+                                                           5 = Float RTK
+                                                           6 = estimated (dead reckoning) (2.3 feature)
+                                                           7 = Manual input mode
+                                                           8 = Simulation mode
+                                 08           Number of satellites being tracked
+                                 0.9          Horizontal dilution of position
+                                 545.4,M      Altitude, Meters, above mean sea level
+                                 46.9,M       Height of geoid (mean sea level) above WGS84
+                                                  ellipsoid
+                                 (empty field) time in seconds since last DGPS update
+                                 (empty field) DGPS station ID number
+                                 *47          the checksum data, always begins with *
+                         */
+
+                            // UTC time of fix HHmmss.S
+                            String time = splitter.next();
+
+                            // latitude ddmm.M
+                            String lat = splitter.next();
+
+                            // direction (N/S)
+                            String latDir = splitter.next();
+
+                            // longitude dddmm.M
+                            String lon = splitter.next();
+
+                            // direction (E/W)
+                            String lonDir = splitter.next();
+
+                        /* fix quality:
+                            0= invalid
+                            1 = GPS fix (SPS)
+                            2 = DGPS fix
+                            3 = PPS fix
+                            4 = Real Time Kinematic
+                            5 = Float RTK
+                            6 = estimated (dead reckoning) (2.3 feature)
+                            7 = Manual input mode
+                            8 = Simulation mode
+                         */
+                            String quality = splitter.next();
+
+                            // Number of satellites being tracked
+                            String nbSat = splitter.next();
+
+                            // Horizontal dilution of position (float)
+                            String hdop = splitter.next();
+
+                            // Altitude, Meters, above mean sea level
+                            String alt = splitter.next();
+
+                            // Height of geoid (mean sea level) above WGS84 ellipsoid
+                            String geoAlt = splitter.next();
+
+                            if (time != null && !time.equals("")) {
+                                lastSentenceTime = time;
+                            }
+
+                            // time in seconds since last DGPS update
+                            // DGPS station ID number
+                            if (quality != null && !quality.equals("")
+                                //        && !quality.contains("N")
+                            ) {
+                                if (this.mockStatus != LocationProvider.AVAILABLE) {
+                                    long updateTime = parseNmeaTime(time);
+                                    notifyStatusChanged(LocationProvider.AVAILABLE, null, updateTime);
+                                }
+
+                                if (!time.equals(fixTime)) {
+                                    notifyFix(fix);
+                                    fix = new Location(mockLocationProvider);
+                                    fixTime = time;
+                                    fixTimestamp = parseNmeaTime(time);
+                                    fix.setTime(fixTimestamp);
+
+                                    Bundle bundle = fix.getExtras();
+                                    if (bundle == null) {
+                                        bundle = new Bundle();
+                                    }
+
+                                    bundle.putLong(SYSTEM_TIME_FIX, System.currentTimeMillis());
+                                    fix.setExtras(bundle);
+
+                                    //Log.v(LOG_TAG, "Fix: "+fix);
+                                }
+
+                                if (lat != null && !lat.equals("")) {
+                                    fix.setLatitude(parseNmeaLatitude(lat, latDir));
+                                }
+
+                                if (lon != null && !lon.equals("")) {
+                                    fix.setLongitude(parseNmeaLongitude(lon, lonDir));
+                                }
+
+                                if (hdop != null && !hdop.equals("")) {
+                                    fix.setAccuracy(Float.parseFloat(hdop) * precision);
+                                }
+
+                                if (alt != null && !alt.equals("")) {
+                                    fix.setAltitude(Double.parseDouble(alt));
+                                }
+
+                                if (nbSat != null && !nbSat.equals("")) {
+
+                                    Bundle bundle = fix.getExtras();
+                                    if (bundle == null) {
+                                        bundle = new Bundle();
+                                    }
+
+                                    bundle.putInt(SATELLITE_KEY, Integer.parseInt(nbSat));
+                                    fix.setExtras(bundle);
+                                }
+
+                                //Log.v(LOG_TAG, "Fix: "+System.currentTimeMillis()+" "+fix);
+                                hasGGA = true;
+
+                                if (hasRMC) {
+                                    notifyFix(fix);
+                                }
+
+                            } /*else if (quality != null && quality.contains("N")) {
+                                if (this.mockStatus != LocationProvider.TEMPORARILY_UNAVAILABLE) {
+                                    long updateTime = parseNmeaTime(time);
+                                    notifyStatusChanged(LocationProvider.TEMPORARILY_UNAVAILABLE, null, updateTime);
+                                }
+                            }*/
+
+                            break;
+                        }
+
                         case "RMC": {
                         /* $GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A
 
@@ -709,12 +859,12 @@ public class NmeaParser {
 
                     return nmeaSentence;
                 }
-            } else {
+            } /*else {
                 log("Sentence invalid, checksums don't match");
-            }
-        } else {
+            }*/
+        } /*else {
             log("Sentence invalid");
-        }
+        }*/
         // As we have received some awful data, it is safe to assume we have missed the
         // current fix, so reset all of the current values and restart
         hasGGA = false;
@@ -792,9 +942,9 @@ public class NmeaParser {
                 }
             }
         } catch (ParseException e) {
-            logError("Error while parsing NMEA time", e);
+            //logError("Error while parsing NMEA time", e);
         }
-        log("Timestamp from gps = " + String.valueOf(timestamp) + " System clock says " + System.currentTimeMillis());
+        //log("Timestamp from gps = " + String.valueOf(timestamp) + " System clock says " + System.currentTimeMillis());
         return timestamp;
     }
 
@@ -813,12 +963,12 @@ public class NmeaParser {
     public void clearLastSentenceTime() {
         lastSentenceTime = "";
     }
-
+/*
     private void log(String message) {
         //if (BuildConfig.DEBUG) Log.d(LOG_TAG, message);
     }
 
     private void logError(String message, Exception e) {
         //if (BuildConfig.DEBUG) Log.e(LOG_TAG, message, e);
-    }
+    }*/
 }

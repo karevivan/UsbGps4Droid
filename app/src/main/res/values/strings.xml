@@ -113,6 +113,7 @@
     <string name="accuracy_placeholder">Accuracy: %s</string>
     <string name="location_placeholder">Location: Lat %1$s, Lon %2$s</string>
     <string name="elevation_placeholder">Altitude: %s</string>
+    <string name="speed_placeholder">Speed: %s</string>
 
     <string name="info_activity_title">UsbGps - Overview</string>
 

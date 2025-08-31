@@ -387,7 +387,7 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
 
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.about_title)
-                .setIcon(R.drawable.gplv3_icon)
+               // .setIcon(R.drawable.gplv3_icon)
                 .setView(messageView)
                 .show();
     }
