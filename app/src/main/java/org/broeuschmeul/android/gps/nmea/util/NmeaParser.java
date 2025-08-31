@@ -563,9 +563,7 @@ public class NmeaParser {
 
                             // time in seconds since last DGPS update
                             // DGPS station ID number
-                            if (quality != null && !quality.equals("")
-                                //        && !quality.contains("N")
-                            ) {
+                            if (quality != null && !quality.equals("") && !quality.contains("N")) {
                                 if (this.mockStatus != LocationProvider.AVAILABLE) {
                                     long updateTime = parseNmeaTime(time);
                                     notifyStatusChanged(LocationProvider.AVAILABLE, null, updateTime);
@@ -623,12 +621,12 @@ public class NmeaParser {
                                     notifyFix(fix);
                                 }
 
-                            } /*else if (quality != null && quality.contains("N")) {
+                            } else if (quality != null && quality.contains("N")) {
                                 if (this.mockStatus != LocationProvider.TEMPORARILY_UNAVAILABLE) {
                                     long updateTime = parseNmeaTime(time);
                                     notifyStatusChanged(LocationProvider.TEMPORARILY_UNAVAILABLE, null, updateTime);
                                 }
-                            }*/
+                            }
 
                             break;
                         }
