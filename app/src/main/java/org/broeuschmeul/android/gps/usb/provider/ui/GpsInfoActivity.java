@@ -5,8 +5,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
-import androidx.preference.PreferenceManager;
-import androidx.appcompat.widget.SwitchCompat;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,6 +13,9 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.preference.PreferenceManager;
 
 import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
 import org.broeuschmeul.android.gps.usb.provider.R;
@@ -28,7 +29,7 @@ import java.util.Locale;
 
 /**
  * Created by Oliver Bell 5/12/15
- *
+ * <p>
  * This activity displays a log, as well as the GPS info. If the users device is
  * large enough and in landscape, the settings fragment will be shown alongside
  */
@@ -36,9 +37,8 @@ import java.util.Locale;
 public class GpsInfoActivity extends USBGpsBaseActivity implements
         USBGpsApplication.ServiceDataListener {
 
-    private SharedPreferences sharedPreferences;
     private static final String TAG = GpsInfoActivity.class.getSimpleName();
-
+    private SharedPreferences sharedPreferences;
     private USBGpsApplication application;
 
     private SwitchCompat startSwitch;
@@ -46,6 +46,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
     private TextView accuracyText;
     private TextView locationText;
     private TextView elevationText;
+    private TextView speedText;
     private TextView logText;
     private TextView timeText;
     private ScrollView logTextScroller;
@@ -92,6 +93,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         accuracyText = (TextView) findViewById(R.id.accuracy_text);
         locationText = (TextView) findViewById(R.id.location_text);
         elevationText = (TextView) findViewById(R.id.elevation_text);
+        speedText = (TextView) findViewById(R.id.speed_text);
         timeText = (TextView) findViewById(R.id.gps_time_text);
 
         logText = (TextView) findViewById(R.id.log_box);
@@ -121,6 +123,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         String lat = "N/A";
         String lon = "N/A";
         String elevation = "N/A";
+        String speed = "N/A";
         String gpsTime = "N/A";
         String systemTime = "N/A";
 
@@ -138,6 +141,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
             lat = df.format(location.getLatitude());
             lon = df.format(location.getLongitude());
             elevation = String.valueOf(location.getAltitude());
+            speed = String.format("%1$.1f", location.getSpeed()*3.6f);//String.valueOf(location.getSpeed());
 
             gpsTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US)
                     .format(new Date(location.getTime()));
@@ -152,6 +156,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         accuracyText.setText(getString(R.string.accuracy_placeholder, accuracyValue));
         locationText.setText(getString(R.string.location_placeholder, lat, lon));
         elevationText.setText(getString(R.string.elevation_placeholder, elevation));
+        speedText.setText(getString(R.string.speed_placeholder, speed));
         timeText.setText(getString(R.string.gps_time_placeholder, gpsTime, systemTime));
         updateLog();
     }
