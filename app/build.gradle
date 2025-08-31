@@ -10,14 +10,14 @@ android {
 
         versionCode 199
         versionName "v2.2.2"
-        vectorDrawables.useSupportLibrary = true
+        //vectorDrawables.useSupportLibrary = true
 
 //        setProperty("archivesBaseName", "UsbGps4Droid-$versionName")
     }
 
-    buildFeatures {
+    /*buildFeatures {
         buildConfig = true
-    }
+    }*/
 
     applicationVariants.configureEach { variant ->
         variant.resValue "string", "version_name", variant.versionName
@@ -36,15 +36,21 @@ android {
 
     }
 
-    productFlavors {
+   /* productFlavors {
+    }*/
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
 dependencies {
-    implementation 'com.android.support:appcompat-v7:28.0.0'
+    //   implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:design:28.0.0'
     implementation 'com.android.support:preference-v14:28.0.0'
-    implementation 'com.android.support:support-vector-drawable:28.0.0'
-    implementation 'com.android.support:cardview-v7:28.0.0'
+//    implementation 'com.android.support:support-vector-drawable:28.0.0'
+//    implementation 'com.android.support:cardview-v7:28.0.0'
     implementation 'com.android.support.constraint:constraint-layout:2.0.4'
+//    implementation 'androidx.annotation:annotation-jvm:1.9.1'
+//    implementation 'androidx.appcompat:appcompat:1.7.1'
 }

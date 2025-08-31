@@ -53,7 +53,7 @@ import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import org.broeuschmeul.android.gps.usb.provider.BuildConfig;
+//import org.broeuschmeul.android.gps.usb.provider.BuildConfig;
 import org.broeuschmeul.android.gps.usb.provider.R;
 import org.broeuschmeul.android.gps.usb.provider.driver.USBGpsProviderService;
 import org.broeuschmeul.android.gps.usb.provider.util.SuperuserManager;

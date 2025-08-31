@@ -45,13 +45,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
-import org.broeuschmeul.android.gps.usb.provider.BuildConfig;
+//import org.broeuschmeul.android.gps.usb.provider.BuildConfig;
 import org.broeuschmeul.android.gps.usb.provider.R;
 import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;
 import org.broeuschmeul.android.gps.usb.provider.ui.GpsInfoActivity;
 import org.broeuschmeul.android.gps.usb.provider.util.SuperuserManager;
 
 import android.Manifest;
+import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -814,7 +815,7 @@ public class USBGpsManager {
                     opsManager.checkOp(
                             AppOpsManager.OPSTR_MOCK_LOCATION,
                             android.os.Process.myUid(),
-                            BuildConfig.APPLICATION_ID
+                            appContext.getPackageName()
                     ) == AppOpsManager.MODE_ALLOWED;
 
         } catch (Exception e) {
