@@ -133,7 +133,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         }
 
         if (location != null) {
-            accuracyValue = String.valueOf(location.getAccuracy());
+            accuracyValue = String.format("%1$.1f", location.getAccuracy());//String.valueOf(location.getAccuracy());
             if (location.getExtras() != null) {
                 numSatellitesValue = String.valueOf(location.getExtras().getInt(NmeaParser.SATELLITE_KEY));
             }

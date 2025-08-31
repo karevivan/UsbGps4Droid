@@ -3,64 +3,59 @@
  * Copyright (C) 2010, 2011, 2012 Herbert von Broeuschmeul
  * Copyright (C) 2010, 2011, 2012 BluetoothGPS4Droid Project
  * Copyright (C) 2011, 2012 UsbGPS4Droid Project
- * 
+ *
  * This file is part of UsbGPS4Droid.
  *
  * UsbGPS4Droid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * UsbGPS4Droid is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with UsbGPS4Droid. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package org.broeuschmeul.android.gps.usb.provider.ui;
 
-import java.util.HashMap;
-import java.util.Objects;
-
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.method.LinkMovementMethod;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
-import androidx.preference.PreferenceManager;
 import androidx.preference.Preference.OnPreferenceChangeListener;
-import androidx.preference.SwitchPreference;
 import androidx.preference.PreferenceFragmentCompat;
-import android.text.method.LinkMovementMethod;
-import android.util.Log;
-import android.view.View;
-import android.widget.BaseAdapter;
-import android.widget.TextView;
+import androidx.preference.PreferenceManager;
+import androidx.preference.SwitchPreference;
 
-//import org.broeuschmeul.android.gps.usb.provider.BuildConfig;
 import org.broeuschmeul.android.gps.usb.provider.R;
 import org.broeuschmeul.android.gps.usb.provider.driver.USBGpsProviderService;
 import org.broeuschmeul.android.gps.usb.provider.util.SuperuserManager;
 
+import java.util.HashMap;
+import java.util.Objects;
+
 /**
  * A Preference Fragment Class used to configure the provider
- *
+ * <p>
  * Starting any services will trigger events in the base usb gps activities
  *
  * @author Herbert von Broeuschmeul
@@ -69,6 +64,19 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
         OnPreferenceChangeListener, OnSharedPreferenceChangeListener {
 
 
+    /**
+     * Tag used for log messages
+     */
+    private static final String TAG = USBGpsSettingsFragment.class.getSimpleName();
+    public static int DEFAULT_GPS_PRODUCT_ID = 424;
+    public static int DEFAULT_GPS_VENDOR_ID = 5446;
+    private Thread usbCheckThread;
+    private SharedPreferences sharedPreferences;
+    private ListPreference devicePreference;
+    private ListPreference deviceSpeedPreference;
+    private UsbManager usbManager;
+    private ActivityManager activityManager;
+    private Handler mainHandler;
     // Checks for usb devices that connect while the screen is active
     private final Runnable usbCheckRunnable = new Runnable() {
         @Override
@@ -99,32 +107,7 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
             log("USB Device Check thread ending");
         }
     };
-
-    private Thread usbCheckThread;
-
-    /**
-     * Tag used for log messages
-     */
-    private static final String TAG = USBGpsSettingsFragment.class.getSimpleName();
-
-    public static int DEFAULT_GPS_PRODUCT_ID = 424;
-    public static int DEFAULT_GPS_VENDOR_ID = 5446;
-
-    private SharedPreferences sharedPreferences;
-    private ListPreference devicePreference;
-    private ListPreference deviceSpeedPreference;
-
-    private UsbManager usbManager;
-    private ActivityManager activityManager;
-
-    private Handler mainHandler;
-
     private PreferenceScreenListener callback;
-
-    // Used to allow for nested preference screens in an android fragment
-    public interface PreferenceScreenListener {
-        void onNestedScreenClicked(PreferenceFragmentCompat preferenceFragment);
-    }
 
     /**
      * Called when the fragment is first created.
@@ -154,7 +137,7 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
 
     private void onDaynightModeChanged(boolean on) {
         AppCompatDelegate.setDefaultNightMode(on ?
-                AppCompatDelegate.MODE_NIGHT_NO:
+                AppCompatDelegate.MODE_NIGHT_NO :
                 AppCompatDelegate.MODE_NIGHT_YES
         );
         requireActivity().recreate();
@@ -275,9 +258,9 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
 
             devicePreference.setSummary(getString(R.string.pref_gps_device_summary, getSelectedDeviceSummary()));
             deviceSpeedPreference.setSummary(getString(
-                    R.string.pref_gps_device_speed_summary,
-                    sharedPreferences.getString(
-                            USBGpsProviderService.PREF_GPS_DEVICE_SPEED, getString(R.string.defaultGpsDeviceSpeed))
+                            R.string.pref_gps_device_speed_summary,
+                            sharedPreferences.getString(
+                                    USBGpsProviderService.PREF_GPS_DEVICE_SPEED, getString(R.string.defaultGpsDeviceSpeed))
                     )
             );
         }
@@ -294,7 +277,7 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
 
         String deviceDisplayedName = "Device not connected - " + vendorId + ": " + productId;
 
-        for (UsbDevice usbDevice: usbManager.getDeviceList().values()) {
+        for (UsbDevice usbDevice : usbManager.getDeviceList().values()) {
             if (usbDevice.getVendorId() == vendorId && usbDevice.getProductId() == productId) {
                 deviceDisplayedName =
                         "USB " + usbDevice.getDeviceProtocol() + " " + usbDevice.getDeviceName() +
@@ -387,7 +370,6 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
 
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.about_title)
-               // .setIcon(R.drawable.gplv3_icon)
                 .setView(messageView)
                 .show();
     }
@@ -427,7 +409,7 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
         log("Shared preferences changed: " + key);
 
-        switch(Objects.requireNonNull(key)) {
+        switch (Objects.requireNonNull(key)) {
             case USBGpsProviderService.PREF_START_GPS_PROVIDER: {
                 boolean val = sharedPreferences.getBoolean(key, false);
                 SwitchPreference pref = (SwitchPreference)
@@ -490,6 +472,15 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
         super.onDestroy();
     }
 
+    private void log(String message) {
+        //if (BuildConfig.DEBUG) Log.d(TAG, message);
+    }
+
+    // Used to allow for nested preference screens in an android fragment
+    public interface PreferenceScreenListener {
+        void onNestedScreenClicked(PreferenceFragmentCompat preferenceFragment);
+    }
+
     public static class ProviderPreferences extends PreferenceFragmentCompat {
         SharedPreferences sharedPreferences;
 
@@ -519,9 +510,5 @@ public class USBGpsSettingsFragment extends PreferenceFragmentCompat implements
             String maxConnRetries = sharedPreferences.getString(USBGpsProviderService.PREF_CONNECTION_RETRIES, getString(R.string.defaultConnectionRetries));
             pref.setSummary(getString(R.string.pref_connection_retries_summary, maxConnRetries));
         }
-    }
-
-    private void log(String message) {
-        //if (BuildConfig.DEBUG) Log.d(TAG, message);
     }
 }

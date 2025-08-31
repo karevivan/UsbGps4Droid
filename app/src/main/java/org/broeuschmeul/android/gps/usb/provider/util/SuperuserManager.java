@@ -1,8 +1,8 @@
 package org.broeuschmeul.android.gps.usb.provider.util;
+
 import android.util.Log;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -11,20 +11,11 @@ import java.io.InputStreamReader;
  */
 
 public class SuperuserManager {
-    private Boolean permission = false;
-
     public static int MAX_THREADS = 10;
-
     public static String TAG = SuperuserManager.class.getSimpleName();
-
-    private int numThreads = 0;
-
     private static SuperuserManager INSTANCE = new SuperuserManager();
-
-    public interface permissionListener {
-        void onGranted();
-        void onDenied();
-    }
+    private Boolean permission = false;
+    private int numThreads = 0;
 
     private SuperuserManager() {
     }
@@ -42,13 +33,13 @@ public class SuperuserManager {
             try {
                 result = process.waitFor();
 
-                if(result != 0){ //error executing command
+                if (result != 0) { //error executing command
                     Log.d(TAG, "result code : " + result);
                     String line;
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
                     try {
-                        while ((line = bufferedReader.readLine()) != null){
+                        while ((line = bufferedReader.readLine()) != null) {
                             Log.d(TAG, "Error: " + line);
                         }
                     } catch (IOException e) {
@@ -77,6 +68,7 @@ public class SuperuserManager {
     /**
      * Attempts to execute the command in a thread. If there is a thread available.
      * Returns false if no threads available
+     *
      * @param command
      * @return
      */
@@ -116,6 +108,12 @@ public class SuperuserManager {
 
     public boolean hasPermission() {
         return permission;
+    }
+
+    public interface permissionListener {
+        void onGranted();
+
+        void onDenied();
     }
 
 }

@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
 
@@ -18,44 +17,11 @@ import java.util.ArrayList;
 public class USBGpsApplication extends Application {
     private static boolean locationAsked = true;
 
-    private int LOG_SIZE = 100;
-
     private final ArrayList<ServiceDataListener> serviceDataListeners = new ArrayList<>();
+    private int LOG_SIZE = 100;
     private Location lastLocation;
     private ArrayList<String> logLines = new ArrayList<>();
-
     private Handler mainHandler;
-
-    static {
-
-    }
-
-    public interface ServiceDataListener {
-        void onNewSentence(String sentence);
-        void onLocationNotified(Location location);
-    }
-
-    private void setupDaynightMode() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean on = preferences.getBoolean(getString(R.string.pref_daynight_theme_key), false);
-
-        AppCompatDelegate.setDefaultNightMode(on ?
-                AppCompatDelegate.MODE_NIGHT_NO:
-                AppCompatDelegate.MODE_NIGHT_YES
-        );
-    }
-
-    @Override
-    public void onCreate() {
-        setupDaynightMode();
-        locationAsked = false;
-        mainHandler = new Handler(getMainLooper());
-        for (int i = 0; i < LOG_SIZE; i++) {
-            logLines.add("");
-        }
-        super.onCreate();
-    }
-
 
     public static void setLocationAsked() {
         locationAsked = true;
@@ -67,6 +33,24 @@ public class USBGpsApplication extends Application {
 
     public static void setLocationNotAsked() {
         locationAsked = false;
+    }
+
+    private void setupDaynightMode() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean on = preferences.getBoolean(getString(R.string.pref_daynight_theme_key), false);
+
+        AppCompatDelegate.setDefaultNightMode(on ? AppCompatDelegate.MODE_NIGHT_NO : AppCompatDelegate.MODE_NIGHT_YES);
+    }
+
+    @Override
+    public void onCreate() {
+        setupDaynightMode();
+        locationAsked = false;
+        mainHandler = new Handler(getMainLooper());
+        for (int i = 0; i < LOG_SIZE; i++) {
+            logLines.add("");
+        }
+        super.onCreate();
     }
 
     public String[] getLogLines() {
@@ -96,7 +80,7 @@ public class USBGpsApplication extends Application {
             mainHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    for (ServiceDataListener dataListener: serviceDataListeners) {
+                    for (ServiceDataListener dataListener : serviceDataListeners) {
                         dataListener.onNewSentence(sentence);
                     }
                 }
@@ -111,12 +95,18 @@ public class USBGpsApplication extends Application {
             mainHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    for (ServiceDataListener dataListener: serviceDataListeners) {
+                    for (ServiceDataListener dataListener : serviceDataListeners) {
                         dataListener.onLocationNotified(location);
                     }
                 }
             });
 
         }
+    }
+
+    public interface ServiceDataListener {
+        void onNewSentence(String sentence);
+
+        void onLocationNotified(Location location);
     }
 }
