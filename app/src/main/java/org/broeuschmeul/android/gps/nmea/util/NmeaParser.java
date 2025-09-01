@@ -33,7 +33,7 @@ import android.os.SystemClock;
 import android.text.TextUtils;
 import android.text.TextUtils.SimpleStringSplitter;
 
-import androidx.annotation.RequiresApi;
+//import androidx.annotation.RequiresApi;
 
 import org.broeuschmeul.android.gps.usb.provider.USBGpsApplication;
 
@@ -91,7 +91,7 @@ public class NmeaParser {
         this.lm = lm;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.S)
+    //@RequiresApi(api = Build.VERSION_CODES.S)
     public void enableMockLocationProvider(String gpsName, boolean force) {
         try {
             LocationProvider prov;

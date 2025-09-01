@@ -62,9 +62,6 @@
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>
-            <meta-data
-                android:name="android.accessibilityservice"
-                android:resource="@xml/accessibility_service_config" />
         </service>
 
         <activity
@@ -83,11 +80,6 @@
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
         </activity>
-
-        <activity
-            android:name=".ui.SettingsActivity"
-            android:label="@string/title_activity_settings"
-            tools:ignore="Instantiatable"></activity>
     </application>
 
 </manifest>

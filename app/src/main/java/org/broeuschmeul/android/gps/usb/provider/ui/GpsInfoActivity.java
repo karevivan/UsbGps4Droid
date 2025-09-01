@@ -2,19 +2,14 @@ package org.broeuschmeul.android.gps.usb.provider.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.preference.PreferenceManager;
 
 import org.broeuschmeul.android.gps.nmea.util.NmeaParser;
@@ -41,7 +36,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
     private SharedPreferences sharedPreferences;
     private USBGpsApplication application;
 
-    private SwitchCompat startSwitch;
+    //  private SwitchCompat startSwitch;
     private TextView numSatellites;
     private TextView accuracyText;
     private TextView locationText;
@@ -53,16 +48,17 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (isDoublePanel()) {
-            savedInstanceState = null;
-        }
+        // if (isDoublePanel()) {
+        savedInstanceState = null;
+        // }
         super.onCreate(savedInstanceState);
 
-        if (isDoublePanel()) {
-            setContentView(R.layout.activity_info_double);
-        } else {
+        // if (isDoublePanel()) {
+        setContentView(R.layout.main);
+        // setContentView(R.layout.activity_info_double);
+       /* } else {
             setContentView(R.layout.activity_info);
-        }
+        }*/
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -70,13 +66,13 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
 
         setupUI();
 
-        if (isDoublePanel()) {
-            showSettingsFragment(R.id.settings_holder, false);
-        }
+        // if (isDoublePanel()) {
+        showSettingsFragment(R.id.settings_holder, false);
+        //   }
     }
 
     private void setupUI() {
-        if (!isDoublePanel()) {
+        /*if (!isDoublePanel()) {
             startSwitch = (SwitchCompat) findViewById(R.id.service_start_switch);
             startSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
@@ -87,7 +83,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
                             .apply();
                 }
             });
-        }
+        }*/
 
         numSatellites = (TextView) findViewById(R.id.num_satellites_text);
         accuracyText = (TextView) findViewById(R.id.accuracy_text);
@@ -99,24 +95,28 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         logText = (TextView) findViewById(R.id.log_box);
         logTextScroller = (ScrollView) findViewById(R.id.log_box_scroller);
     }
+/*
 
     private boolean isDoublePanel() {
-        return (getResources().getConfiguration().screenLayout
+        return true;*/
+/*(getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE &&
                 getResources()
                         .getConfiguration()
-                        .orientation == Configuration.ORIENTATION_LANDSCAPE;
+                        .orientation == Configuration.ORIENTATION_LANDSCAPE;*//*
+
     }
+*/
 
     private void updateData() {
         boolean running =
                 sharedPreferences.getBoolean(USBGpsProviderService.PREF_START_GPS_PROVIDER, false);
 
-        if (!isDoublePanel()) {
+       /* if (!isDoublePanel()) {
             startSwitch.setChecked(
                     running
             );
-        }
+        }*/
 
         String accuracyValue = "N/A";
         String numSatellitesValue = "N/A";
@@ -141,7 +141,7 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
             lat = df.format(location.getLatitude());
             lon = df.format(location.getLongitude());
             elevation = String.valueOf(location.getAltitude());
-            speed = String.format("%1$.1f", location.getSpeed()*3.6f);//String.valueOf(location.getSpeed());
+            speed = String.format("%1$.1f", location.getSpeed() * 3.6f);//String.valueOf(location.getSpeed());
 
             gpsTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US)
                     .format(new Date(location.getTime()));
@@ -192,14 +192,14 @@ public class GpsInfoActivity extends USBGpsBaseActivity implements
         super.onPause();
     }
 
-    @Override
+   /* @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (!isDoublePanel()) {
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.menu_main, menu);
         }
         return true;
-    }
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
